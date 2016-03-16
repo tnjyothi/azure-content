@@ -40,7 +40,7 @@ Next, you need to create an app in your B2C directory. This gives Azure AD infor
 
 ## Create your policies
 
-In Azure AD B2C, every user experience is defined by a [policy](active-directory-b2c-reference-policies.md). This code sample contains three identity experiences: sign up, sign in, and edit profile. You need to create one policy of each type, as described in the [policy reference article](active-directory-b2c-reference-policies.md#how-to-create-a-sign-up-policy). When you create the three policies, be sure to:
+In Azure AD B2C, every user experience is defined by a [policy](active-directory-b2c-reference-policies.md). This code sample contains three identity experiences: sign up, sign in,Unified signupsignin and edit profile . You need to create one policy of each type, as described in the [policy reference article](active-directory-b2c-reference-policies.md#how-to-create-a-sign-up-policy). When you create the three policies, be sure to:
 
 - Choose **User ID sign-up** or **Email sign-up** in the identity providers blade.
 - Choose the **Display name** and other sign-up attributes in your sign-up policy.
