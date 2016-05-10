@@ -80,33 +80,45 @@ Edit one of the scripts below to work with your directory by replacing $ClientID
 ### PowerShell Script
 
     # This script will require the Web Application and permissions setup in Azure Active Directory
-    $ClientID	  	= "your-application-client-id-here"				# Should be a ~35 character string insert your info here
-    $ClientSecret  	= "your-application-client-secret-here"			# Should be a ~44 character string insert your info here
-    $loginURL		= "https://login.windows.net"
-    $tenantdomain	= "your-directory-name-here.onmicrosoft.com"			# For example, contoso.onmicrosoft.com
-
-    # Get an Oauth 2 access token based on client id, secret and tenant domain
-    $body		= @{grant_type="client_credentials";resource=$resource;client_id=$ClientID;client_secret=$ClientSecret}
-    $oauth		= Invoke-RestMethod -Method Post -Uri $loginURL/$tenantdomain/oauth2/token?api-version=1.0 -Body $body
-
-    $7daysago = "{0:s}" -f (get-date).AddDays(-7) + "Z"
-    # or, AddMinutes(-5)
-
-    Write-Output $7daysago
-
-    if ($oauth.access_token -ne $null) {
-    	$headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
-
-        $url = "https://graph.windows.net/$tenantdomain/reports/auditEvents?api-version=beta&\`$filter=eventTime gt $7daysago"
-
-    	$myReport = (Invoke-WebRequest -UseBasicParsing -Headers $headerParams -Uri $url)
-    	foreach ($event in ($myReport.Content | ConvertFrom-Json).value) {
-    		Write-Output ($event | ConvertTo-Json)
-    	}
-        $myReport.Content | Out-File -FilePath auditEvents.json -Force
-    } else {
-    	Write-Host "ERROR: No Access Token"
+$ClientID      = "890a8fdf-ff33-4160-8214-b69d5b9a7fef"            # Should be a ~35 character string insert your info here
+$ClientSecret  = "X7o859BmQ5aNJXxxArH4X+R+Dw02SEM7ZLL82xCsalw="          # Should be a ~44 character string insert your info here
+$loginURL      = "https://login.windows.net"
+$tenantdomain  = "b2ctesting.onmicrosoft.com"            # For example, contoso.onmicrosoft.com
+# Get an Oauth 2 access token based on client id, secret and tenant domain
+$body          = @{grant_type="client_credentials";resource=$resource;client_id=$ClientID;client_secret=$ClientSecret}
+$oauth         = Invoke-RestMethod -Method Post -Uri $loginURL/$tenantdomain/oauth2/token?api-version=1.0 -Body $body
+if ($oauth.access_token -ne $null) {
+    $headerParams  = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
+# Returns a list of all the available reports
+    Write-host List of available reports
+    Write-host =========================
+    $allReports = (Invoke-WebRequest -Headers $headerParams -Uri "https://graph.windows.net/$tenantdomain/reports?api-version=beta")
+    Write-host $allReports.Content
+Write-host
+    Write-host Data from the b2cUserJourneySummaryEvents report
+    Write-host ====================================================
+    Write-host
+    # Returns a JSON document for the "b2cUserJourneySummaryEvents" report
+    $myReport = (Invoke-WebRequest -Headers $headerParams -Uri "https://graph.windows.net/$tenantdomain/reports/b2cUserJourneySummaryEvents?api-version=beta")
+    Write-host $myReport.Content
+    Write-host
+    Write-host Data from the b2cUserJourneyEvents report with datetime filter
+    Write-host ====================================================
+    Write-host
+    # Returns a JSON document for the " " report
+        $myReport = (Invoke-WebRequest -Headers $headerParams -Uri "https://graph.windows.net/$tenantdomain/reports/b2cUserJourneyEvents?%24filter=TransactionEnd+gt+2015-08-20+and+TransactionEnd+lt+2015-08-22+and+ObjectId+eq+'7e262b56-993d-4699-80b7-83f1f71d4558'&api-version=beta")
+    Write-host $myReport.Content
+# Options for other output formats
+# to output the JSON use following line
+    $myReport.Content | Out-File -FilePath b2cUserJourneySummaryEvents.json -Force
+# to output the content to a name value list
+    ($myReport.Content | ConvertFrom-Json).value | Out-File -FilePath b2cUserJourneySummaryEvents.txt -Force
+# to output the content in XML use the following line
+    (($myReport.Content | ConvertFrom-Json).value | ConvertTo-Xml).InnerXml | Out-File -FilePath b2cUserJourneySummaryEvents.xml -Force
+} else {
+    Write-Host "ERROR: No Access Token"
     }
+
 
 ### Bash Script
 
